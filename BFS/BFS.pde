@@ -1,124 +1,111 @@
-import java.util.Queue;
-import java.util.LinkedList;
+import gifAnimation.*;
 
-// Define a class to represent a graph node
-class GraphNode {
-  int value;
-  float x, y;
-  ArrayList<GraphNode> neighbors;
-  boolean visited;
+GifMaker gifExport;
 
-  GraphNode(int val, float xpos, float ypos) {
-    value = val;
-    x = xpos;
-    y = ypos;
-    neighbors = new ArrayList<GraphNode>();
-    visited = false;
-  }
+color standardColor = color(26, 69, 56); // Green 005
+color highlightColor = color(255, 184, 56); // Yellow 004
+PFont lato;
 
-  void addNeighbor(GraphNode neighbor) {
-    neighbors.add(neighbor);
-  }
-
-  void display() {
-    // Draw the node
-    stroke(0);
-    fill(255);
-    ellipse(x, y, 30, 30);
-
-    // Display the node value
-    fill(0);
-    textAlign(CENTER, CENTER);
-    text(value, x, y);
-  }
-}
-
-// Define a class to represent a graph
-class Graph {
-  ArrayList<GraphNode> nodes;
-  Queue<GraphNode> queue;
-
-  Graph() {
-    nodes = new ArrayList<GraphNode>();
-    queue = new LinkedList<GraphNode>();
-  }
-
-  void addNode(GraphNode node) {
-    nodes.add(node);
-  }
-
-  // Perform BFS traversal starting from a given node
-  void BFS(GraphNode start) {
-    // Enqueue the start node
-    start.visited = true;
-    queue.add(start);
-
-    while (!queue.isEmpty()) {
-      // Dequeue a node from the queue
-      GraphNode current = queue.poll();
-      
-      // Display the current node as visited
-      current.display();
-      
-      // Visit all neighbors of the dequeued node
-      for (GraphNode neighbor : current.neighbors) {
-        if (!neighbor.visited) {
-          neighbor.visited = true;
-          queue.add(neighbor);
-          
-          // Draw edge as moving line
-          float startX = current.x;
-          float startY = current.y;
-          float targetX = neighbor.x;
-          float targetY = neighbor.y;
-          float animFactor = 0;
-          while (animFactor < 1) {
-            float lineX = lerp(startX, targetX, animFactor);
-            float lineY = lerp(startY, targetY, animFactor);
-            stroke(lerpColor(color(0, 255, 0), color(255), animFactor));
-            strokeWeight(2);
-            line(startX, startY, lineX, lineY);
-            animFactor += 0.05; // Speed of animation
-            delay(50); // Delay between drawing frames
-          }
-          // Draw final edge
-          stroke(0, 255, 0);
-          strokeWeight(2);
-          line(startX, startY, targetX, targetY);
-        }
-      }
-    }
-  }
-}
-
-// Create a new graph
-Graph graph = new Graph();
+int[][] graph = {
+  {1, 2},
+  {0, 3, 4},
+  {0, 5, 6},
+  {1},
+  {1},
+  {2},
+  {2}
+};
+boolean[] visited = new boolean[graph.length];
+int[] queue = new int[graph.length];
+int queueStart = 0;
+int queueEnd = 0;
+int currentNode = -1;
 
 void setup() {
-  size(400, 400);
-  background(0); // Start with black background
-  
-  // Create graph nodes
-  GraphNode node0 = new GraphNode(0, 50, 50);
-  GraphNode node1 = new GraphNode(1, 150, 50);
-  GraphNode node2 = new GraphNode(2, 250, 50);
-  GraphNode node3 = new GraphNode(3, 150, 150);
-  GraphNode node4 = new GraphNode(4, 250, 150);
+  size(1920, 1080);
+  lato = createFont("C:\\sweta\\processing\\processing\\data\\lato\\Lato-Regular.ttf", 32);
+  textFont(lato);
+  textAlign(CENTER, CENTER);
+  gifExport = new GifMaker(this, "bfs_animation.gif");
+  gifExport.setRepeat(0); // make it an "endless" animation
+  gifExport.setQuality(10);
+  gifExport.setDelay(60); // Adjust GIF speed
 
-  // Connect nodes
-  node0.addNeighbor(node1);
-  node0.addNeighbor(node2);
-  node1.addNeighbor(node3);
-  node2.addNeighbor(node4);
-  node3.addNeighbor(node4);
+  // Initialize BFS
+  queue[queueEnd++] = 0; // Start BFS from node 0
+  visited[0] = true;
+}
 
-  // Add nodes to the graph
-  graph.addNode(node0);
-  graph.addNode(node1);
-  graph.addNode(node2);
-  graph.addNode(node3);
-  graph.addNode(node4);
+void draw() {
+  background(255);
+  drawGraph();
 
-  // Perform BFS traversal starting from node 0
-  graph.BFS(node0);
+  if (frameCount % 60 == 0) {
+    bfsStep();
+  }
+
+  gifExport.addFrame(); // Add the current frame to the GIF
+  if (done()) {
+    gifExport.finish(); // Finish the GIF once done
+  }
+}
+
+void drawGraph() {
+  float[][] positions = {
+    {960, 200},
+    {660, 400},
+    {1260, 400},
+    {560, 600},
+    {760, 600},
+    {1160, 600},
+    {1360, 600}
+  };
+
+  for (int i = 0; i < graph.length; i++) {
+    for (int j : graph[i]) {
+      stroke(0);
+      line(positions[i][0], positions[i][1], positions[j][0], positions[j][1]);
+    }
+  }
+
+  for (int i = 0; i < graph.length; i++) {
+    if (i == currentNode) fill(highlightColor);
+    else if (visited[i]) fill(standardColor);
+    else fill(200);
+    ellipse(positions[i][0], positions[i][1], 100, 100);
+    fill(0);
+    text(i, positions[i][0], positions[i][1]);
+  }
+}
+
+void bfsStep() {
+  if (queueStart < queueEnd) {
+    currentNode = queue[queueStart++];
+    for (int neighbor : graph[currentNode]) {
+      if (!visited[neighbor]) {
+        queue[queueEnd++] = neighbor;
+        visited[neighbor] = true;
+      }
+    }
+  } else {
+    currentNode = -1; // BFS is done
+  }
+}
+
+boolean done() {
+  return currentNode == -1;
+}
+
+// Restart the animation when mouse is pressed
+void mousePressed() {
+  queueStart = 0;
+  queueEnd = 0;
+  currentNode = -1;
+  visited = new boolean[graph.length];
+  queue[queueEnd++] = 0; // Start BFS from node 0
+  visited[0] = true;
+  gifExport = new GifMaker(this, "bfs_animation.gif");
+  gifExport.setRepeat(0); // make it an "endless" animation
+  gifExport.setQuality(10);
+  gifExport.setDelay(60); // Adjust GIF speed
 }

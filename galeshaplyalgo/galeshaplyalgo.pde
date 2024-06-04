@@ -1,65 +1,84 @@
+import gifAnimation.*;
 import java.util.Collections;
 
-ArrayList<Person> men = new ArrayList<Person>();
-ArrayList<Person> women = new ArrayList<Person>();
+ArrayList<Person> students = new ArrayList<Person>();
+ArrayList<Person> programs = new ArrayList<Person>();
 boolean finished = false;
 String statusText = "";
 
+GifMaker gifExport;
+
 void setup() {
-  size(800, 400);
-  for (int i = 0; i < 5; i++) {
-    men.add(new Person("M" + i, true, 100, 50 + i * 60));
-    women.add(new Person("W" + i, false, 300, 50 + i * 60));
+  size(1920, 1080);
+  String[] studentNames = {"Alice", "Bob", "Charlie", "David", "Eve"};
+  String[] programNames = {"Residency A", "Residency B", "Residency C", "Residency D", "Residency E"};
+  
+  for (int i = 0; i < studentNames.length; i++) {
+    students.add(new Person(studentNames[i], true, 200, 100 + i * 180));
+    programs.add(new Person(programNames[i], false, 1720, 100 + i * 180));
   }
-  for (Person man : men) {
-    man.generatePreferences(women);
+  for (Person student : students) {
+    student.generatePreferences(programs);
   }
-  for (Person woman : women) {
-    woman.generatePreferences(men);
+  for (Person program : programs) {
+    program.generatePreferences(students);
   }
-  textSize(12);
-  frameRate(0.5); // Adjust speed here, lower is slower
+  
+  textSize(32);
+  frameRate(0.5); // Slow down for better visualization
+
+  gifExport = new GifMaker(this, "gale_shapley_visualization.gif");
+  gifExport.setRepeat(0); // make it an "endless" animation
+  gifExport.setQuality(10);
+  gifExport.setDelay(100); // Slower GIF speed
 }
 
 void draw() {
   background(255);
-  for (Person man : men) {
-    man.display();
+  for (Person student : students) {
+    student.display();
   }
-  for (Person woman : women) {
-    woman.display();
+  for (Person program : programs) {
+    program.display();
   }
   
   // Draw lines for current matches
-  for (Person man : men) {
-    if (man.isMatched) {
-      stroke(0, 255, 0); // Green line for match
-      line(man.x, man.y, man.currentPartner.x, man.currentPartner.y);
+  for (Person student : students) {
+    if (student.isMatched) {
+      stroke(26, 69, 56); // Green 005 line for match
+      strokeWeight(4);
+      line(student.x + 50, student.y, student.currentPartner.x - 50, student.currentPartner.y);
     }
   }
   
   fill(0);
-  text(statusText, 10, 360);
+  text(statusText, 10, 1060);
   
   if (!finished) {
     finished = performOneStep();
+  }
+
+  gifExport.addFrame(); // Add the current frame to the GIF
+  if (finished) {
+    gifExport.finish(); // Finish the GIF once done
   }
 }
 
 boolean performOneStep() {
   boolean allMatched = true;
-  for (Person man : men) {
-    if (!man.isMatched) {
+  for (Person student : students) {
+    if (!student.isMatched) {
       allMatched = false;
-      Person preferred = man.getMostPreferred();
-      if (preferred != null) {
-        man.propose(preferred);
-        if (man.isMatched) {
-          statusText = man.name + " proposes to " + preferred.name + ", accepted";
+      Person preferredProgram = student.getMostPreferred();
+      if (preferredProgram != null) {
+        student.propose(preferredProgram);
+        if (student.isMatched) {
+          statusText = student.name + " proposes to " + preferredProgram.name + ", accepted";
         } else {
-          statusText = man.name + " proposes to " + preferred.name + ", rejected";
+          statusText = student.name + " proposes to " + preferredProgram.name + ", rejected";
           stroke(255, 0, 0); // Red line for rejection
-          line(man.x, man.y, preferred.x, preferred.y);
+          strokeWeight(2);
+          line(student.x + 50, student.y, preferredProgram.x - 50, preferredProgram.y);
         }
         break; // Only one proposal per frame
       }
@@ -70,15 +89,15 @@ boolean performOneStep() {
 
 class Person {
   String name;
-  boolean isMan;
+  boolean isStudent;
   int x, y;
   boolean isMatched = false;
   ArrayList<Person> preferences = new ArrayList<Person>();
   Person currentPartner = null;
 
-  Person(String n, boolean gender, int px, int py) {
+  Person(String n, boolean type, int px, int py) {
     name = n;
-    isMan = gender;
+    isStudent = type;
     x = px;
     y = py;
   }
@@ -90,21 +109,21 @@ class Person {
 
   Person getMostPreferred() {
     for (Person p : preferences) {
-      if (!p.isMatched || p.currentPartner != this) {
+      if (!p.isMatched || p.prefers(this)) {
         return p;
       }
     }
     return null; // No more preferences available
   }
 
-  void propose(Person woman) {
-    if (woman.currentPartner == null || woman.prefers(this)) {
-      if (woman.currentPartner != null && woman.currentPartner != this) {
-        woman.currentPartner.isMatched = false;
-        woman.currentPartner.currentPartner = null;
+  void propose(Person program) {
+    if (program.currentPartner == null || program.prefers(this)) {
+      if (program.currentPartner != null && program.currentPartner != this) {
+        program.currentPartner.isMatched = false;
+        program.currentPartner.currentPartner = null;
       }
-      currentPartner = woman;
-      woman.currentPartner = this;
+      currentPartner = program;
+      program.currentPartner = this;
       isMatched = true;
     } else {
       isMatched = false;
@@ -116,8 +135,8 @@ class Person {
   }
 
   void display() {
-    fill(isMatched ? color(0, 255, 0) : color(255, 0, 0));
-    ellipse(x, y, 40, 40);
+    fill(isMatched ? color(26, 69, 56) : color(255, 184, 56)); // Green 005 for matched, Yellow 004 for unmatched
+    ellipse(x, y, 100, 100);
     fill(0);
     textAlign(CENTER, CENTER);
     text(name, x, y);
