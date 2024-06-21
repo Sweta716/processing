@@ -1,7 +1,8 @@
-import java.util.HashMap;
+import gifAnimation.*;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.Stack;
-import java.util.*;
+
 // Graph representation using an adjacency list
 HashMap<Integer, ArrayList<Integer>> graph;
 // To keep track of visited nodes
@@ -13,6 +14,13 @@ int nodeSize = 30;
 int[] nodeX, nodeY; // Positions of nodes
 int current = 0; // current node being processed
 
+GifMaker gifExport;
+
+// Colors from the provided palette
+color nodeColor = color(167, 231, 182); // Light green for nodes
+color edgeColor = color(41, 116, 150); // Blue for edges
+color visitedNodeColor = color(239, 107, 72); // Red-orange for visited nodes
+
 void setup() {
   size(800, 600);
   // Setup nodes and edges
@@ -23,6 +31,12 @@ void setup() {
   // Initialize positions for nodes for drawing
   setupPositions();
   frameRate(1); // Slow down the animation for visualization
+
+  // Setup GifMaker
+  gifExport = new GifMaker(this, "topological_sort_visualization.gif");
+  gifExport.setRepeat(0); // Make it an "endless" animation
+  gifExport.setQuality(10);
+  gifExport.setDelay(200); // Adjust GIF speed
 }
 
 void draw() {
@@ -35,8 +49,10 @@ void draw() {
     current++;
   } else {
     displaySortOrder();
+    gifExport.finish(); // Finish the GIF once done
     noLoop(); // Stops draw() from continuously executing after sorting
   }
+  gifExport.addFrame(); // Add the current frame to the GIF
 }
 
 void topologicalSortUtil(int v) {
@@ -76,16 +92,24 @@ void setupGraph() {
 }
 
 void setupPositions() {
-  nodeX = new int[]{100, 200, 100, 200, 300, 400};
-  nodeY = new int[]{300, 200, 100, 100, 200, 300};
+  nodeX = new int[]{100, 300, 500, 100, 300, 500};
+  nodeY = new int[]{100, 100, 100, 300, 300, 300};
 }
 
 void drawGraph() {
+  textSize(16);
+  textAlign(CENTER, CENTER);
   for (int i = 0; i < graph.size(); i++) {
-    fill(200);
+    if (visited[i]) {
+      fill(visitedNodeColor); // Color for visited nodes
+    } else {
+      fill(nodeColor); // Default node color
+    }
     ellipse(nodeX[i], nodeY[i], nodeSize, nodeSize);
+    fill(0);
+    text(i, nodeX[i], nodeY[i]); // Draw the node label
     for (int neighbor : graph.get(i)) {
-      stroke(0);
+      stroke(edgeColor); // Edge color
       line(nodeX[i], nodeY[i], nodeX[neighbor], nodeY[neighbor]);
     }
   }

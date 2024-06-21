@@ -5,15 +5,10 @@ ArrayList<int[]> frames = new ArrayList<int[]>();
 GifMaker gifExport;
 PFont lato;
 
-// Colors from the palette
-color colorBlue004 = color(41, 116, 150);
-color colorBlue005 = color(12, 51, 84);
-color colorGreen004 = color(2, 89, 68);
-color colorGreen005 = color(26, 69, 56);
-color colorYellow004 = color(255, 184, 56);
-color colorYellow005 = color(226, 168, 85);
-color colorOrange004 = color(229, 98, 28);
-color colorOrange005 = color(187, 65, 0);
+// Colors from the provided palette
+color colorDividing = color(248, 200, 164); // Light orange
+color colorSorting = color(247, 157, 100);  // Orange
+color colorMerging = color(239, 107, 72);   // Red-orange
 
 void setup() {
   size(1920, 1080);
@@ -53,10 +48,12 @@ void draw() {
 
 void displaySocks(int[] array) {
   for (int i = 0; i < array.length; i++) {
-    if (array == socks) {
-      fill(colorBlue004); // Initial color for original array
+    if (frameCount < frames.size() / 3) {
+      fill(colorDividing); // Color for dividing step
+    } else if (frameCount < 2 * frames.size() / 3) {
+      fill(colorSorting); // Color for sorting step
     } else {
-      fill(map(array[i], 10, 140, 0, 255), 100, 200); // Gradient color based on value
+      fill(colorMerging); // Color for merging step
     }
     rect(50 + i * 100, 600 - array[i] * 4, 80, array[i] * 4);
     fill(0);

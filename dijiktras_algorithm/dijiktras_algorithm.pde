@@ -1,3 +1,7 @@
+import gifAnimation.*;
+import java.util.*;
+
+GifMaker gifExport;
 PFont lato;
 int[][] graph = {
   {0, 10, 0, 0, 0, 0},
@@ -18,8 +22,8 @@ PVector[] positions;
 
 void setup() {
   size(1920, 1080);
-  //lato = createFont("data/Lato-Regular.ttf", 32);
-  //textFont(lato);
+  lato = createFont("Lato-Regular", 32);
+  textFont(lato);
   dist = new int[V];
   sptSet = new boolean[V];
   parent = new int[V];
@@ -37,11 +41,17 @@ void setup() {
   }
   dist[src] = 0;
   frameRate(1);
+  
+  // Setup GifMaker
+  gifExport = new GifMaker(this, "dijkstra_animation.gif");
+  gifExport.setRepeat(0); // Repeat indefinitely
+  gifExport.setQuality(10);
+  gifExport.setDelay(60); // Adjust GIF speed
 }
 
 void draw() {
-  background(#FFFFFF);
-  fill(#151515);
+  background(255);
+  fill(0);
   textAlign(CENTER);
   textSize(32);
   text("Visualizing Dijkstra's Algorithm", width / 2, 40);
@@ -54,9 +64,14 @@ void draw() {
   if (step < maxSteps) {
     dijkstraStep();
     step++;
-    saveFrame("frames/frame-######.png");
   } else {
     noLoop();
+  }
+  
+  // Add the current frame to the GIF
+  gifExport.addFrame();
+  if (done()) {
+    gifExport.finish(); // Finish the GIF once done
   }
 }
 
@@ -64,18 +79,18 @@ void visualizeGraph() {
   for (int i = 0; i < V; i++) {
     for (int j = 0; j < V; j++) {
       if (graph[i][j] != 0) {
-        stroke(#545454);
+        stroke(100);
         line(positions[i].x, positions[i].y, positions[j].x, positions[j].y);
-        fill(#545454);
+        fill(100);
         textSize(18);
         text(graph[i][j], (positions[i].x + positions[j].x) / 2, (positions[i].y + positions[j].y) / 2);
       }
     }
   }
   for (int i = 0; i < V; i++) {
-    fill(sptSet[i] ? #FFA500 : #E5E5E5);  // Current node color for visited
+    fill(sptSet[i] ? color(255, 165, 0) : color(229, 229, 229));  // Current node color for visited
     ellipse(positions[i].x, positions[i].y, 40, 40);
-    fill(#151515);
+    fill(0);
     textSize(24);
     textAlign(CENTER, CENTER);
     text(i, positions[i].x, positions[i].y);
@@ -103,4 +118,11 @@ int minDistance() {
     }
   }
   return min_index;
+}
+
+boolean done() {
+  for (boolean v : sptSet) {
+    if (!v) return false;
+  }
+  return true;
 }

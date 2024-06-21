@@ -9,6 +9,11 @@ int totalBars = 30;
 boolean isSorted = false;
 int currentComparison = 0;
 
+// Colors from the provided palette
+color barColor = color(167, 199, 231);       // Light blue for bars
+color comparisonColor = color(247, 157, 100); // Orange for current comparisons
+color arrowColor = color(239, 107, 72);      // Red-orange for arrows
+
 void setup() {
   size(800, 600);
   font = createFont("Lato", 16);
@@ -43,7 +48,11 @@ void draw() {
 void drawBars() {
   int barWidth = width / totalBars;
   for (int i = 0; i < heights.length; i++) {
-    fill(200);
+    if (i == currentComparison || i == currentComparison + 1) {
+      fill(comparisonColor); // Color for current comparisons
+    } else {
+      fill(barColor); // Color for bars
+    }
     rect(i * barWidth, height - heights[i] - 150, barWidth - 1, heights[i]);
     fill(0);
     textAlign(CENTER, BOTTOM);
@@ -56,7 +65,7 @@ void drawBars() {
 }
 
 void drawArrow(float x1, float y1, float x2, float y2) {
-  stroke(0, 0, 255, 128); // Lighter blue color and semi-transparent
+  stroke(arrowColor); // Red-orange color for arrows
   strokeWeight(2); // Thinner arrow
   line(x1, y1, x2, y2);
   float angle = atan2(y2 - y1, x2 - x1);

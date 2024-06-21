@@ -10,11 +10,11 @@ int[] parent;
 boolean[] visited;
 int source = 0;
 int sink = 5;
-int step = 0;
 boolean maxFlowFound = false;
+boolean pathHighlighted = false;
 
 void setup() {
-  size(800, 600);
+  size(1200, 800);
   font = createFont("Lato", 16);
   textFont(font);
   initializeGraph();
@@ -23,6 +23,8 @@ void setup() {
   // Setup GifMaker
   gifMaker = new GifMaker(this, "NetworkFlow-MaxFlow.gif");
   gifMaker.setRepeat(0); // Repeat indefinitely
+  gifMaker.setQuality(10);
+  gifMaker.setDelay(1000); // Set delay time between frames in milliseconds
 }
 
 void draw() {
@@ -33,7 +35,17 @@ void draw() {
   
   drawGraph();
   if (!maxFlowFound) {
-    findAugmentingPath();
+    if (!pathHighlighted) {
+      highlightPath();
+      pathHighlighted = true;
+    } else {
+      findAugmentingPath();
+      pathHighlighted = false;
+    }
+  } else {
+    fill(0);
+    textAlign(CENTER, TOP);
+    text("Maximum Flow Found", width / 2, height - 50);
   }
   
   // Add the current frame to the GIF
@@ -42,12 +54,12 @@ void draw() {
 
 void initializeGraph() {
   nodes = new PVector[6];
-  nodes[0] = new PVector(100, 300); // Source
-  nodes[1] = new PVector(300, 150);
-  nodes[2] = new PVector(300, 450);
-  nodes[3] = new PVector(500, 150);
-  nodes[4] = new PVector(500, 450);
-  nodes[5] = new PVector(700, 300); // Sink
+  nodes[0] = new PVector(100, 400); // Source
+  nodes[1] = new PVector(300, 200);
+  nodes[2] = new PVector(300, 600);
+  nodes[3] = new PVector(600, 200);
+  nodes[4] = new PVector(600, 600);
+  nodes[5] = new PVector(900, 400); // Sink
   
   capacity = new int[][] {
     {0, 16, 13, 0, 0, 0},
@@ -71,7 +83,7 @@ void drawGraph() {
         drawArrow(nodes[i].x, nodes[i].y, nodes[j].x, nodes[j].y);
         fill(0);
         textAlign(CENTER, CENTER);
-        text(flow[i][j] + " / " + capacity[i][j], (nodes[i].x + nodes[j].x) / 2, (nodes[i].y + nodes[j].y) / 2 - 10);
+        text(flow[i][j] + " / " + capacity[i][j], (nodes[i].x + nodes[j].x) / 2, (nodes[i].y + nodes[j].y) / 2 - 20);
       }
     }
   }
@@ -100,6 +112,21 @@ void drawArrow(float x1, float y1, float x2, float y2) {
   line(x2, y2, x2 - arrowSize * cos(angle - PI / 6), y2 - arrowSize * sin(angle - PI / 6));
 }
 
+void highlightPath() {
+  if (bfs()) {
+    for (int v = sink; v != source; v = parent[v]) {
+      int u = parent[v];
+      stroke(255, 0, 0); // Highlight in red
+      strokeWeight(4);
+      line(nodes[u].x, nodes[u].y, nodes[v].x, nodes[v].y);
+    }
+  } else {
+    maxFlowFound = true;
+    gifMaker.finish();
+    noLoop();
+  }
+}
+
 void findAugmentingPath() {
   if (bfs()) {
     // Find the maximum flow through the path found by BFS
@@ -117,9 +144,6 @@ void findAugmentingPath() {
     }
   } else {
     maxFlowFound = true;
-    fill(0);
-    textAlign(CENTER, TOP);
-    text("Maximum Flow Found", width / 2, height - 50);
     gifMaker.finish();
     noLoop();
   }

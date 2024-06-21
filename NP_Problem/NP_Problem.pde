@@ -2,21 +2,31 @@ import gifAnimation.*;
 
 PFont font;
 GifMaker gifMaker;
-int[] set = {3, 34, 4, 12, 5, 2};
-int targetSum = 9;
-boolean[] subset;
-boolean found = false;
-int currentStep = 0;
+int[] heights;
+int step = 0;
+int maxHeight;
+int totalBars = 30;
+boolean isSorted = false;
+int currentComparison = 0;
+
+// Colors from the provided palette
+color barColor = color(167, 231, 182);       // Light green for bars
+color comparisonColor = color(247, 157, 100); // Orange for current comparisons
+color arrowColor = color(239, 107, 72);      // Red-orange for arrows
 
 void setup() {
   size(800, 600);
   font = createFont("Lato", 16);
   textFont(font);
-  subset = new boolean[set.length];
+  heights = new int[totalBars];
+  for (int i = 0; i < heights.length; i++) {
+    heights[i] = int(random(height / 2));
+  }
+  maxHeight = height / 2;
   frameRate(1); // Adjust the frame rate as needed
   
   // Setup GifMaker
-  gifMaker = new GifMaker(this, "NP-Problem-SubsetSum.gif");
+  gifMaker = new GifMaker(this, "NP_Problem.gif");
   gifMaker.setRepeat(0); // Repeat indefinitely
 }
 
@@ -24,63 +34,73 @@ void draw() {
   background(255); // White background
   fill(0);
   textAlign(CENTER, TOP);
-  text("Visualizing NP Problem: Subset Sum", width / 2, 20);
+  text("Visualizing NP Problem and Reduction", width / 2, 20);
   
-  drawSet();
-  if (!found) {
-    checkSubsetSum();
+  drawBars();
+  if (!isSorted) {
+    bubbleSortStep();
   }
   
   // Add the current frame to the GIF
   gifMaker.addFrame();
 }
 
-void drawSet() {
-  int barWidth = width / set.length;
-  for (int i = 0; i < set.length; i++) {
-    if (subset[i]) {
-      fill(0, 255, 0); // Green for included in the subset
+void drawBars() {
+  int barWidth = width / totalBars;
+  for (int i = 0; i < heights.length; i++) {
+    if (i == currentComparison || i == currentComparison + 1) {
+      fill(comparisonColor); // Color for current comparisons
     } else {
-      fill(200);
+      fill(barColor); // Color for bars
     }
-    rect(i * barWidth, height / 2, barWidth - 1, -set[i] * 10);
+    rect(i * barWidth, height - heights[i] - 150, barWidth - 1, heights[i]);
     fill(0);
     textAlign(CENTER, BOTTOM);
-    text(set[i], i * barWidth + barWidth / 2, height / 2 - set[i] * 10 - 5);
+    text(heights[i], i * barWidth + barWidth / 2, height - heights[i] - 155);
+    
+    if (i == currentComparison || i == currentComparison + 1) {
+      drawArrow(i * barWidth + barWidth / 2, height - heights[i] - 150, (i + 1) * barWidth + barWidth / 2, height - heights[i + 1] - 150);
+    }
   }
 }
 
-void checkSubsetSum() {
-  int currentSum = 0;
-  for (int i = 0; i < subset.length; i++) {
-    if (subset[i]) {
-      currentSum += set[i];
-    }
-  }
-  
-  fill(0);
-  textAlign(LEFT, TOP);
-  text("Checking subset sum: " + currentSum, 50, height - 50);
-  
-  if (currentSum == targetSum) {
-    found = true;
-    fill(0);
-    textAlign(LEFT, TOP);
-    text("Subset found that sums to " + targetSum, 50, height - 80);
-    gifMaker.finish();
-    noLoop();
-  } else {
-    nextSubset();
-  }
+void drawArrow(float x1, float y1, float x2, float y2) {
+  stroke(arrowColor); // Red-orange color for arrows
+  strokeWeight(2); // Thinner arrow
+  line(x1, y1, x2, y2);
+  float angle = atan2(y2 - y1, x2 - x1);
+  float arrowSize = 8; // Smaller arrowhead
+  line(x2, y2, x2 - arrowSize * cos(angle + PI / 6), y2 - arrowSize * sin(angle + PI / 6));
+  line(x2, y2, x2 - arrowSize * cos(angle - PI / 6), y2 - arrowSize * sin(angle - PI / 6));
 }
 
-void nextSubset() {
-  for (int i = 0; i < subset.length; i++) {
-    if (!subset[i]) {
-      subset[i] = true;
-      break;
-    } else {
-      subset[i] = false;
+void bubbleSortStep() {
+  if (step >= heights.length - 1) {
+    step = 0;
+    isSorted = true;
+    for (int i = 0; i < heights.length - 1; i++) {
+      if (heights[i] > heights[i + 1]) {
+        isSorted = false;
+        break;
+      }
     }
+    if (isSorted) {
+      gifMaker.finish();
+      noLoop();
+      return;
+    }
+  }
+  
+  for (int i = 0; i < heights.length - step - 1; i++) {
+    if (heights[i] > heights[i + 1]) {
+      int temp = heights[i];
+      heights[i] = heights[i + 1];
+      heights[i + 1] = temp;
+    }
+  }
+  currentComparison++;
+  if (currentComparison >= heights.length - step - 1) {
+    currentComparison = 0;
+    step++;
   }
 }

@@ -1,3 +1,5 @@
+import gifAnimation.*;
+
 class Edge {
   int src, dest;
   float weight;
@@ -16,18 +18,19 @@ ArrayList<Edge> mstEdges = new ArrayList<Edge>();
 boolean[] inMST;
 int V = 6; // Number of vertices
 PVector[] positions;
+GifMaker gifExport;
 
 void setup() {
   size(1920, 1080);
-  edges.add(new Edge(0, 1, 4, color(255, 0, 0)));
-  edges.add(new Edge(0, 2, 4, color(0, 255, 0)));
-  edges.add(new Edge(1, 2, 2, color(0, 0, 255)));
-  edges.add(new Edge(1, 3, 6, color(255, 255, 0)));
-  edges.add(new Edge(2, 3, 8, color(255, 0, 255)));
-  edges.add(new Edge(2, 4, 10, color(0, 255, 255)));
-  edges.add(new Edge(3, 4, 8, color(255, 127, 0)));
-  edges.add(new Edge(3, 5, 10, color(127, 0, 255)));
-  edges.add(new Edge(4, 5, 4, color(127, 255, 0)));
+  edges.add(new Edge(0, 1, 4, color(167, 199, 231))); // light blue
+  edges.add(new Edge(0, 2, 4, color(167, 199, 231))); // light blue
+  edges.add(new Edge(1, 2, 2, color(167, 199, 231))); // light blue
+  edges.add(new Edge(1, 3, 6, color(167, 199, 231))); // light blue
+  edges.add(new Edge(2, 3, 8, color(167, 199, 231))); // light blue
+  edges.add(new Edge(2, 4, 10, color(167, 199, 231))); // light blue
+  edges.add(new Edge(3, 4, 8, color(167, 199, 231))); // light blue
+  edges.add(new Edge(3, 5, 10, color(167, 199, 231))); // light blue
+  edges.add(new Edge(4, 5, 4, color(167, 199, 231))); // light blue
 
   inMST = new boolean[V];
   positions = new PVector[V];
@@ -40,6 +43,12 @@ void setup() {
 
   inMST[0] = true; // Start with the first vertex
   frameRate(1);
+  
+  // Setup GifMaker
+  gifExport = new GifMaker(this, "Prim_Algorithm.gif");
+  gifExport.setRepeat(0); // make it an "endless" animation
+  gifExport.setQuality(10);
+  gifExport.setDelay(200); // Slower GIF speed for better understanding
 }
 
 void draw() {
@@ -59,8 +68,10 @@ void draw() {
   visualizeGraph();
   if (mstEdges.size() < V - 1) {
     addEdgeToMST();
+    gifExport.addFrame(); // Add the current frame to the GIF
     saveFrame("frames/frame-######.png");
   } else {
+    gifExport.finish(); // Finish the GIF once done
     noLoop();
   }
 }
@@ -72,13 +83,13 @@ void visualizeGraph() {
   }
 
   for (Edge edge : mstEdges) {
-    stroke(0);
+    stroke(color(99, 177, 142)); // green for MST edges
     strokeWeight(3);
     line(positions[edge.src].x, positions[edge.src].y, positions[edge.dest].x, positions[edge.dest].y);
   }
 
   for (int i = 0; i < V; i++) {
-    fill(inMST[i] ? color(0, 255, 0) : color(200));
+    fill(inMST[i] ? color(247, 157, 100) : color(248, 200, 164)); // orange for nodes in MST, light orange for nodes not in MST
     ellipse(positions[i].x, positions[i].y, 40, 40);
     fill(0);
     textAlign(CENTER, CENTER);

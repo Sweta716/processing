@@ -8,6 +8,10 @@ boolean[] vertexCover;
 boolean reductionComplete = false;
 int step = 0;
 
+// Colors from the provided palette
+color vertexCoverColor = color(239, 107, 72); // Red-orange for nodes in Vertex Cover
+color nonVertexCoverColor = color(167, 231, 182); // Light green for nodes not in Vertex Cover
+
 void setup() {
   size(800, 600);
   font = createFont("Lato", 16);
@@ -58,13 +62,14 @@ void drawGraph() {
   for (int[] edge : edges) {
     int from = edge[0];
     int to = edge[1];
+    stroke(0); // Black color for edges
     line(nodes[from].x, nodes[from].y, nodes[to].x, nodes[to].y);
   }
   for (int i = 0; i < nodes.length; i++) {
     if (vertexCover[i]) {
-      fill(255, 0, 0); // Red for vertex cover
+      fill(vertexCoverColor); // Red-orange for vertex cover
     } else {
-      fill(200, 200, 255); // Blue for others
+      fill(nonVertexCoverColor); // Light green for others
     }
     ellipse(nodes[i].x, nodes[i].y, 50, 50);
     fill(0);

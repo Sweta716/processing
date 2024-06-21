@@ -11,6 +11,10 @@ PFont lato;
 boolean isMergeSort = true; // Toggle between Merge Sort and Quicksort
 int[] arrayCopy;
 
+// Colors from the provided palette
+color mergeSortColor = color(248, 200, 164); // Light orange for Merge Sort
+color quickSortColor = color(239, 107, 72);  // Red-orange for Quicksort
+
 void setup() {
   size(1920, 1080);
   lato = createFont("C:\\sweta\\processing\\processing\\data\\lato\\Lato-Regular.ttf", 32);
@@ -50,9 +54,9 @@ void draw() {
 
 void displaySocks(int[] array) {
   for (int i = 0; i < array.length; i++) {
-    fill(isMergeSort ? color(41, 116, 150) : color(12, 51, 84)); // Blue 004 for Merge Sort, Blue 005 for Quicksort
+    fill(isMergeSort ? mergeSortColor : quickSortColor); // Light orange for Merge Sort, Red-orange for Quicksort
     rect(200 + i * 150, 500 - array[i] * 5, 100, array[i] * 5);
-    fill(255);
+    fill(0);
     text(array[i], 250 + i * 150, 500 - array[i] * 5 - 20);
   }
 }

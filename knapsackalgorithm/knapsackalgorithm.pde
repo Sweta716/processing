@@ -20,15 +20,15 @@ color colorOrange004 = color(229, 98, 28);
 
 void setup() {
   size(1920, 1080);
-  lato = createFont("C:\\sweta\\processing\\processing\\data\\lato\\Lato-Regular.ttf", 32);
+  lato = createFont("Lato-Regular", 32);
   textFont(lato);
   textAlign(CENTER, CENTER);
   frameRate(1); // Slow the animation for better visualization
 
   gifExport = new GifMaker(this, "knapsack_dynamic_programming.gif");
-  gifExport.setRepeat(0); // make it an "endless" animation
+  gifExport.setRepeat(0); // Make it an "endless" animation
   gifExport.setQuality(10);
-  gifExport.setDelay(200); // Slower GIF speed for better understanding
+  gifExport.setDelay(1000); // Slower GIF speed for better understanding
 
   initializeDPTable();
 }
@@ -36,6 +36,7 @@ void setup() {
 void draw() {
   background(255);
   displayDPTable();
+  displayText();
 
   gifExport.addFrame(); // Add the current frame to the GIF
   if (currentItem > n) {
@@ -44,14 +45,6 @@ void draw() {
   } else {
     fillDPTable();
   }
-
-  // Display algorithm name and scenario
-  fill(0);
-  textSize(28);
-  text("0/1 Knapsack Problem using Dynamic Programming", width / 2, height - 200);
-  text("Scenario: Solving problems with overlapping subproblems and optimal substructure", width / 2, height - 150);
-  text("Current Step: " + getCurrentStep(), width / 2, height - 100);
-  text("DP Table Values: ", width / 2, height - 50);
 }
 
 void initializeDPTable() {
@@ -106,6 +99,15 @@ void displayDPTable() {
     textAlign(CENTER, BOTTOM);
     text("Weight " + w, 250 + w * 150, 130);
   }
+}
+
+void displayText() {
+  fill(0);
+  textSize(28);
+  textAlign(CENTER, TOP);
+  text("0/1 Knapsack Problem using Dynamic Programming", width / 2, height - 150);
+  text("Scenario: Solving problems with overlapping subproblems and optimal substructure", width / 2, height - 100);
+  text("Current Step: " + getCurrentStep(), width / 2, height - 50);
 }
 
 String getCurrentStep() {

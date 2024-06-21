@@ -28,7 +28,7 @@ void setup() {
   frameRate(0.5); // Slow down for better visualization
 
   gifExport = new GifMaker(this, "gale_shapley_visualization.gif");
-  gifExport.setRepeat(0); // make it an "endless" animation
+  gifExport.setRepeat(0); // Make it an "endless" animation
   gifExport.setQuality(10);
   gifExport.setDelay(100); // Slower GIF speed
 }
@@ -45,7 +45,7 @@ void draw() {
   // Draw lines for current matches
   for (Person student : students) {
     if (student.isMatched) {
-      stroke(26, 69, 56); // Green 005 line for match
+      stroke(26, 69, 56); // Green line for match
       strokeWeight(4);
       line(student.x + 50, student.y, student.currentPartner.x - 50, student.currentPartner.y);
     }
@@ -135,7 +135,7 @@ class Person {
   }
 
   void display() {
-    fill(isMatched ? color(26, 69, 56) : color(255, 184, 56)); // Green 005 for matched, Yellow 004 for unmatched
+    fill(isMatched ? color(26, 69, 56) : color(255, 184, 56)); // Green for matched, Yellow for unmatched
     ellipse(x, y, 100, 100);
     fill(0);
     textAlign(CENTER, CENTER);

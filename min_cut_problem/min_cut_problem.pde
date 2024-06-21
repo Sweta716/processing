@@ -1,6 +1,5 @@
 import gifAnimation.*;
-import java.util.LinkedList;
-import java.util.Arrays;
+import java.util.*;
 
 PFont font;
 GifMaker gifMaker;
@@ -11,20 +10,26 @@ int[] parent;
 boolean[] visited;
 int source = 0;
 int sink = 5;
-boolean maxFlowComplete = false;
 boolean minCutFound = false;
-int step = 0;
+boolean pathHighlighted = false;
+
+// Colors from the provided palette
+color colorDividing = color(248, 200, 164); // Light orange
+color colorSorting = color(247, 157, 100);  // Orange
+color colorMerging = color(239, 107, 72);   // Red-orange
 
 void setup() {
-  size(1000, 700);
+  size(1200, 800);
   font = createFont("Lato", 16);
   textFont(font);
   initializeGraph();
   frameRate(1); // Adjust the frame rate as needed
-  
+
   // Setup GifMaker
-  gifMaker = new GifMaker(this, "NetworkFlow-MinCut.gif");
+  gifMaker = new GifMaker(this, "min_cut_visualization.gif");
   gifMaker.setRepeat(0); // Repeat indefinitely
+  gifMaker.setQuality(10);
+  gifMaker.setDelay(1000); // Set delay time between frames in milliseconds
 }
 
 void draw() {
@@ -32,27 +37,35 @@ void draw() {
   fill(0);
   textAlign(CENTER, TOP);
   text("Minimum Cut Problem: Ford-Fulkerson Algorithm", width / 2, 20);
-  
+
   drawGraph();
-  if (!maxFlowComplete) {
-    findMaxFlow();
-  } else if (!minCutFound) {
-    findMinCut();
+  if (!minCutFound) {
+    if (!pathHighlighted) {
+      highlightPath();
+      pathHighlighted = true;
+    } else {
+      findMinCut();
+      pathHighlighted = false;
+    }
+  } else {
+    fill(0);
+    textAlign(CENTER, TOP);
+    text("Minimum Cut Found", width / 2, height - 50);
   }
-  
+
   // Add the current frame to the GIF
   gifMaker.addFrame();
 }
 
 void initializeGraph() {
   nodes = new PVector[6];
-  nodes[0] = new PVector(150, 300); // Source
-  nodes[1] = new PVector(350, 150);
-  nodes[2] = new PVector(350, 450);
-  nodes[3] = new PVector(550, 150);
-  nodes[4] = new PVector(550, 450);
-  nodes[5] = new PVector(750, 300); // Sink
-  
+  nodes[0] = new PVector(100, 400); // Source
+  nodes[1] = new PVector(300, 200);
+  nodes[2] = new PVector(300, 600);
+  nodes[3] = new PVector(600, 200);
+  nodes[4] = new PVector(600, 600);
+  nodes[5] = new PVector(900, 400); // Sink
+
   capacity = new int[][] {
     {0, 16, 13, 0, 0, 0},
     {0, 0, 10, 12, 0, 0},
@@ -61,7 +74,7 @@ void initializeGraph() {
     {0, 0, 0, 7, 0, 4},
     {0, 0, 0, 0, 0, 0}
   };
-  
+
   flow = new int[6][6];
   parent = new int[6];
   visited = new boolean[6];
@@ -104,7 +117,27 @@ void drawArrow(float x1, float y1, float x2, float y2) {
   line(x2, y2, x2 - arrowSize * cos(angle - PI / 6), y2 - arrowSize * sin(angle - PI / 6));
 }
 
-void findMaxFlow() {
+void highlightPath() {
+  if (bfs()) {
+    for (int v = sink; v != source; v = parent[v]) {
+      int u = parent[v];
+      stroke(colorDividing); // Highlight in light orange
+      strokeWeight(4);
+      line(nodes[u].x, nodes[u].y, nodes[v].x, nodes[v].y);
+      fill(colorDividing); // Light orange text for highlighted path
+      text(flow[u][v] + " / " + capacity[u][v], (nodes[u].x + nodes[v].x) / 2, (nodes[u].y + nodes[v].y) / 2 - 20);
+    }
+    fill(0);
+    textAlign(CENTER, BOTTOM);
+    text("Augmenting Path Found", width / 2, height - 100);
+  } else {
+    minCutFound = true;
+    gifMaker.finish();
+    noLoop();
+  }
+}
+
+void findMinCut() {
   if (bfs()) {
     // Find the maximum flow through the path found by BFS
     int pathFlow = Integer.MAX_VALUE;
@@ -112,15 +145,21 @@ void findMaxFlow() {
       int u = parent[v];
       pathFlow = min(pathFlow, capacity[u][v] - flow[u][v]);
     }
-    
+
     // Update residual capacities of the edges and reverse edges along the path
     for (int v = sink; v != source; v = parent[v]) {
       int u = parent[v];
       flow[u][v] += pathFlow;
       flow[v][u] -= pathFlow;
     }
+
+    fill(0);
+    textAlign(CENTER, BOTTOM);
+    text("Flow updated by " + pathFlow, width / 2, height - 100);
   } else {
-    maxFlowComplete = true;
+    minCutFound = true;
+    gifMaker.finish();
+    noLoop();
   }
 }
 
@@ -130,10 +169,10 @@ boolean bfs() {
   queue.add(source);
   visited[source] = true;
   parent[source] = -1;
-  
+
   while (queue.size() != 0) {
     int u = queue.poll();
-    
+
     for (int v = 0; v < nodes.length; v++) {
       if (!visited[v] && capacity[u][v] - flow[u][v] > 0) {
         if (v == sink) {
@@ -147,37 +186,4 @@ boolean bfs() {
     }
   }
   return false;
-}
-
-void findMinCut() {
-  // Mark all vertices reachable from source
-  Arrays.fill(visited, false);
-  markReachableVertices(source);
-  
-  // Highlight the edges that form the minimum cut
-  for (int i = 0; i < capacity.length; i++) {
-    for (int j = 0; j < capacity[i].length; j++) {
-      if (visited[i] && !visited[j] && capacity[i][j] > 0) {
-        stroke(255, 0, 0); // Red color for min-cut edges
-        strokeWeight(4);
-        line(nodes[i].x, nodes[i].y, nodes[j].x, nodes[j].y);
-      }
-    }
-  }
-  
-  minCutFound = true;
-  fill(0);
-  textAlign(CENTER, TOP);
-  text("Minimum Cut Found", width / 2, height - 50);
-  gifMaker.finish();
-  noLoop();
-}
-
-void markReachableVertices(int u) {
-  visited[u] = true;
-  for (int v = 0; v < nodes.length; v++) {
-    if (!visited[v] && capacity[u][v] - flow[u][v] > 0) {
-      markReachableVertices(v);
-    }
-  }
 }

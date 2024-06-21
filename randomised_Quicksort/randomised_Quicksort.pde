@@ -1,8 +1,17 @@
+import gifAnimation.*;
+import java.util.ArrayList;
+
 int[] array;
 int arraySize = 50; // Number of elements in the array
 int currentPivotIndex = -1;
 ArrayList<int[]> frames = new ArrayList<int[]>();
 boolean fastForward = true;
+GifMaker gifExport;
+
+// Colors from the provided palette
+color barColor = color(167, 231, 182); // Light green for bars
+color pivotColor = color(247, 157, 100); // Orange for pivot
+color comparisonColor = color(239, 107, 72); // Red-orange for elements being compared
 
 void setup() {
   size(800, 600);
@@ -16,6 +25,12 @@ void setup() {
   } else {
     frameRate(1);
   }
+
+  // Setup GifMaker
+  gifExport = new GifMaker(this, "randomized_quicksort_visualization.gif");
+  gifExport.setRepeat(0); // make it an "endless" animation
+  gifExport.setQuality(10);
+  gifExport.setDelay(200); // Slower GIF speed for better understanding
 }
 
 void draw() {
@@ -32,7 +47,9 @@ void draw() {
       saveFrame("frames/frame-######.png");
     }
     array = frames.remove(0);
+    gifExport.addFrame(); // Add the current frame to the GIF
   } else {
+    gifExport.finish(); // Finish the GIF once done
     noLoop();
   }
 }
@@ -40,9 +57,9 @@ void draw() {
 void drawArray(int[] array) {
   for (int i = 0; i < array.length; i++) {
     if (i == currentPivotIndex) {
-      fill(255, 0, 0);
+      fill(pivotColor);
     } else {
-      fill(100);
+      fill(barColor);
     }
     rect(i * (width / arraySize), height - array[i], (width / arraySize) - 1, array[i]);
   }

@@ -9,9 +9,24 @@ PFont lato;
 int currentFrame = 0;
 
 // Colors from the palette
-color colorBlue004 = color(41, 116, 150);
-color colorGreen004 = color(2, 89, 68);
-color colorYellow004 = color(255, 184, 56);
+color[] colors = {
+  color(255, 204, 153), // Light Orange
+  color(255, 153, 102), // Orange
+  color(255, 102, 51),  // Dark Orange
+  color(255, 255, 204), // Light Yellow
+  color(255, 255, 153), // Yellow
+  color(255, 255, 102), // Dark Yellow
+  color(204, 255, 204), // Light Green
+  color(153, 204, 153), // Green
+  color(102, 153, 102), // Dark Green
+  color(204, 255, 255), // Light Blue
+  color(153, 204, 255), // Blue
+  color(102, 153, 255)  // Dark Blue
+};
+
+color bigOColor = colors[2];      // Dark Orange
+color bigOmegaColor = colors[6];  // Light Green
+color bigThetaColor = colors[10]; // Blue
 
 void setup() {
   size(1920, 1080);
@@ -48,7 +63,7 @@ void draw() {
 void displayAnalysis(int frame) {
   // Display Big O
   if (frame < bigO.length) {
-    fill(colorBlue004);
+    fill(bigOColor);
     rect(400, height - 200 - bigO[frame] * 10, 100, bigO[frame] * 10);
     fill(0);
     text("Big O: " + bigO[frame], 450, height - 200 - bigO[frame] * 10 - 20);
@@ -56,7 +71,7 @@ void displayAnalysis(int frame) {
 
   // Display Big Omega
   if (frame < bigOmega.length) {
-    fill(colorGreen004);
+    fill(bigOmegaColor);
     rect(900, height - 200 - bigOmega[frame] * 10, 100, bigOmega[frame] * 10);
     fill(0);
     text("Big Ω: " + bigOmega[frame], 950, height - 200 - bigOmega[frame] * 10 - 20);
@@ -64,7 +79,7 @@ void displayAnalysis(int frame) {
 
   // Display Big Theta
   if (frame < bigTheta.length) {
-    fill(colorYellow004);
+    fill(bigThetaColor);
     rect(1400, height - 200 - bigTheta[frame] * 10, 100, bigTheta[frame] * 10);
     fill(0);
     text("Big Θ: " + bigTheta[frame], 1450, height - 200 - bigTheta[frame] * 10 - 20);

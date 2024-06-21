@@ -6,7 +6,22 @@ int[] array = {10, 20, 30, 40, 50};  // Example array
 int selectedIndex = 0;               // Index of the element to access
 boolean done = false;                // Flag to indicate if the animation is done
 
-color standardColor = color(41, 116, 150); // Blue 004
+color[] colors = {
+  color(255, 204, 153), // Light Orange
+  color(255, 153, 102), // Orange
+  color(255, 102, 51),  // Dark Orange
+  color(255, 255, 204), // Light Yellow
+  color(255, 255, 153), // Yellow
+  color(255, 255, 102), // Dark Yellow
+  color(204, 255, 204), // Light Green
+  color(153, 204, 153), // Green
+  color(102, 153, 102), // Dark Green
+  color(204, 255, 255), // Light Blue
+  color(153, 204, 255), // Blue
+  color(102, 153, 255)  // Dark Blue
+};
+
+color standardColor = colors[2]; // Selecting Dark Orange
 
 PFont lato;
 
@@ -38,7 +53,7 @@ void draw() {
 void displayArray() {
   for (int i = 0; i < array.length; i++) {
     if (i == selectedIndex) fill(standardColor); // Highlight the accessed element
-    else fill(200);
+    else fill(colors[i % colors.length]); // Use a color from the palette
     rect(150 + i * 350, 440, 200, 200); // Adjusted size and position
     fill(0);
     text(array[i], 150 + i * 350 + 100, 540);

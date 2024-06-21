@@ -2,8 +2,25 @@ import gifAnimation.*;
 
 GifMaker gifExport;
 
-color standardColor = color(26, 69, 56); // Green 005
-color highlightColor = color(255, 184, 56); // Yellow 004
+// Colors from the palette
+color[] colors = {
+  color(255, 204, 153), // Light Orange
+  color(255, 153, 102), // Orange
+  color(255, 102, 51),  // Dark Orange
+  color(255, 255, 204), // Light Yellow
+  color(255, 255, 153), // Yellow
+  color(255, 255, 102), // Dark Yellow
+  color(204, 255, 204), // Light Green
+  color(153, 204, 153), // Green
+  color(102, 153, 102), // Dark Green
+  color(204, 255, 255), // Light Blue
+  color(153, 204, 255), // Blue
+  color(102, 153, 255)  // Dark Blue
+};
+
+color standardColor = colors[7];  // Green
+color highlightColor = colors[1]; // Orange
+
 PFont lato;
 
 int[][] graph = {

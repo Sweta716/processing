@@ -1,3 +1,6 @@
+import java.util.*;
+import gifAnimation.*;
+
 class Item {
   float weight;
   float value;
@@ -18,6 +21,7 @@ float knapsackCapacity = 100;
 float currentWeight = 0;
 float currentValue = 0;
 int step = 0;
+GifMaker gifExport;
 
 void setup() {
   size(1920, 1080);
@@ -30,6 +34,12 @@ void setup() {
   items.sort((a, b) -> Float.compare(b.ratio, a.ratio));  // Sort items by value-to-weight ratio
   selectedWeights = new float[items.size()];
   frameRate(1);
+
+  // Initialize GIF export
+  gifExport = new GifMaker(this, "knapsack_visualization.gif");
+  gifExport.setRepeat(0);  // Make the GIF loop
+  gifExport.setQuality(10);
+  gifExport.setDelay(1000);  // Set delay time between frames in milliseconds
 }
 
 void draw() {
@@ -53,9 +63,14 @@ void draw() {
   if (step < items.size()) {
     addItemToKnapsack();
     step++;
-    saveFrame("frames/frame-######.png");
   } else {
     noLoop();
+  }
+  
+  // Add the current frame to the GIF
+  gifExport.addFrame();
+  if (done()) {
+    gifExport.finish(); // Finish the GIF once done
   }
 }
 
@@ -94,4 +109,8 @@ void addItemToKnapsack() {
   selectedWeights[step] = weightToAdd;
   currentWeight += weightToAdd;
   currentValue += weightToAdd * item.ratio;
+}
+
+boolean done() {
+  return step >= items.size();
 }

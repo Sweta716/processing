@@ -21,6 +21,22 @@ boolean hasNegativeCycle = false;
 PFont font;
 GifMaker gifMaker;
 
+// Colors from the palette
+color[] colors = {
+  color(255, 204, 153), // Light Orange
+  color(255, 153, 102), // Orange
+  color(255, 102, 51),  // Dark Orange
+  color(255, 255, 204), // Light Yellow
+  color(255, 255, 153), // Yellow
+  color(255, 255, 102), // Dark Yellow
+  color(204, 255, 204), // Light Green
+  color(153, 204, 153), // Green
+  color(102, 153, 102), // Dark Green
+  color(204, 255, 255), // Light Blue
+  color(153, 204, 255), // Blue
+  color(102, 153, 255)  // Dark Blue
+};
+
 void setup() {
   size(1000, 600); // Increased height for bottom text
   distances = new int[nodes.length];
@@ -76,7 +92,7 @@ void drawGraph() {
     text(str(weight), (nodes[from].x + nodes[to].x) / 2, (nodes[from].y + nodes[to].y) / 2 - 10);
   }
   for (int i = 0; i < nodes.length; i++) {
-    fill(color(255, 204, 0)); // Yellow nodes
+    fill(colors[i % colors.length]); // Use a color from the palette
     ellipse(nodes[i].x, nodes[i].y, 60, 60);
     fill(0);
     textAlign(CENTER, CENTER);

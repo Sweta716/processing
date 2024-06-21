@@ -1,10 +1,34 @@
 import java.util.*;
+import gifAnimation.*;
+
+GifMaker gifExport;
+
 int[] A;
 int n = 20; // Number of elements in the array
 int x = 25; // Element to search for
 int low, high, mid;
 boolean isFound = false;
 String statusMessage = "Starting binary search for " + x + "...";
+
+// Colors from the palette
+color[] colors = {
+  color(255, 204, 153), // Light Orange
+  color(255, 153, 102), // Orange
+  color(255, 102, 51),  // Dark Orange
+  color(255, 255, 204), // Light Yellow
+  color(255, 255, 153), // Yellow
+  color(255, 255, 102), // Dark Yellow
+  color(204, 255, 204), // Light Green
+  color(153, 204, 153), // Green
+  color(102, 153, 102), // Dark Green
+  color(204, 255, 255), // Light Blue
+  color(153, 204, 255), // Blue
+  color(102, 153, 255)  // Dark Blue
+};
+
+color midColor = colors[2];         // Dark Orange
+color activeSearchColor = colors[10]; // Blue
+color inactiveAreaColor = colors[0];  // Light Orange
 
 void setup() {
   size(1200, 300);
@@ -15,6 +39,12 @@ void setup() {
   textSize(16);
   textAlign(CENTER, CENTER);
   frameRate(1); // Adjust frame rate for clear visualization
+
+  // Setup GifMaker
+  gifExport = new GifMaker(this, "binary_search.gif");
+  gifExport.setRepeat(0); // Repeat indefinitely
+  gifExport.setQuality(10);
+  gifExport.setDelay(60); // Adjust GIF speed
 }
 
 void draw() {
@@ -39,6 +69,12 @@ void draw() {
     noLoop(); // Stop animation if not found
     statusMessage = "Element not found.";
   }
+
+  // Add the current frame to the GIF
+  gifExport.addFrame();
+  if (done()) {
+    gifExport.finish(); // Finish the GIF once done
+  }
 }
 
 void displayArray() {
@@ -46,12 +82,12 @@ void displayArray() {
   for (int i = 0; i < A.length; i++) {
     if (i >= low && i <= high) {
       if (i == mid) {
-        fill(255, 0, 0); // Red for mid
+        fill(midColor); // Dark Orange for mid
       } else {
-        fill(0, 100, 255); // Blue for active search area
+        fill(activeSearchColor); // Blue for active search area
       }
     } else {
-      fill(220); // Gray for inactive area
+      fill(inactiveAreaColor); // Light Orange for inactive area
     }
     
     rect(i * rectWidth, 60, rectWidth, 100);
@@ -83,4 +119,8 @@ void generateAndSortArray() {
     A[i] = (int)random(1, 100); // Generate random numbers between 1 and 100
   }
   Arrays.sort(A); // Sort the array to ensure binary search can be applied
+}
+
+boolean done() {
+  return isFound || low > high;
 }

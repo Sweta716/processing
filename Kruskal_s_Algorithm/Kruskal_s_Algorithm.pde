@@ -1,4 +1,6 @@
+import gifAnimation.*;
 import java.util.*;
+
 class Edge implements Comparable<Edge> {
   int src, dest;
   float weight;
@@ -26,6 +28,7 @@ int[] parent;
 int[] rank;
 int V = 6; // Number of vertices
 int edgeIndex = 0;
+GifMaker gifExport;
 
 void setup() {
   size(1920, 1080);
@@ -49,6 +52,11 @@ void setup() {
   }
 
   frameRate(1);
+
+  gifExport = new GifMaker(this, "kruskal_visualization.gif");
+  gifExport.setRepeat(0); // make it an "endless" animation
+  gifExport.setQuality(10);
+  gifExport.setDelay(1000); // Slower GIF speed for better understanding
 }
 
 void draw() {
@@ -69,10 +77,12 @@ void draw() {
   if (edgeIndex < edges.size()) {
     addEdgeToMST();
     edgeIndex++;
-    saveFrame("frames/frame-######.png");
   } else {
+    gifExport.finish();
     noLoop();
   }
+
+  gifExport.addFrame(); // Add the current frame to the GIF
 }
 
 void visualizeGraph() {
